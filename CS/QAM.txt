@@ -1,0 +1,31 @@
+clc;
+clear all;
+close all;
+
+M = 16; % 16-QAM
+N = 5000; % Number of bits
+
+% Generate random binary sequence
+x = randi([0, 1], N, log2(M));  % Random binary data (0 or 1)
+
+% Convert binary data to decimal
+x1 = bi2de(x, 'left-msb'); 
+
+% Modulate the signal using 16-QAM
+xmod = qammod(x1, M);
+
+% Signal space diagram (scatter plot of transmitted signal)
+figure;
+scatterplot(xmod);
+title('Signal Space Diagram of 16-QAM');
+
+% Define SNR (Signal-to-Noise Ratio)
+snr = 10;  % SNR in dB
+
+% Add AWGN (Additive White Gaussian Noise) to the modulated signal
+rx = awgn(xmod, snr, 'measured');
+
+% Signal space diagram (scatter plot of received signal)
+figure;
+scatterplot(rx);
+title('Signal Space Diagram of Received 16-QAM Under AWGN');

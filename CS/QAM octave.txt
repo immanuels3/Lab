@@ -1,0 +1,13 @@
+% Signal Space Diagram for transmitted signal (16-QAM)
+figure;
+scatter(real(xmod), imag(xmod), 'r');
+title('Signal Space Diagram of 16-QAM');
+xlabel('In-Phase');
+ylabel('Quadrature');
+
+% Signal Space Diagram for received signal (16-QAM with AWGN)
+figure;
+scatter(real(rx), imag(rx), 'b');
+title('Signal Space Diagram of Received 16-QAM Under AWGN');
+xlabel('In-Phase');
+ylabel('Quadrature');

@@ -1,0 +1,73 @@
+clc;
+clear all;
+close all;
+
+% === Step 1: Define Hamming (7,4) Parameters ===
+n = 7;
+k = 4;
+q = 3;
+
+% Parity-check matrix H for Hamming(7,4)
+H = [1 0 1 0 1 0 1;
+     0 1 1 0 0 1 1;
+     0 0 0 1 1 1 1];
+
+% Generator matrix G in systematic form: [I | P]
+G = [1 0 0 0 1 0 1;
+     0 1 0 0 1 1 0;
+     0 0 1 0 0 1 1;
+     0 0 0 1 1 1 1];
+
+printf("Generator Matrix G =\n");
+disp(G);
+
+printf("Parity-Check Matrix H =\n");
+disp(H);
+
+% === Step 2: Message Vectors (3 messages) ===
+msg = [1 0 0 1;
+       1 0 1 0;
+       1 0 1 1];
+
+% === Step 3: Encode Using Generator Matrix ===
+code = mod(msg * G, 2);
+
+printf("Original Messages:\n");
+disp(msg);
+
+printf("Encoded Codewords:\n");
+disp(code);
+
+% === Step 4: Simulate Received Vector (with error) ===
+recd = [1 0 1 1 1 1 0];  % example: one-bit error
+printf("Received Codeword:\n");
+disp(recd);
+
+% === Step 5: Compute Syndrome ===
+syndrome = mod(recd * H', 2);  % row vector * H'
+printf("Syndrome (binary):\n");
+disp(syndrome);
+
+% Convert to decimal for correction table
+syndrome_decimal = bi2de(syndrome, 'left-msb');
+printf("Syndrome = %d (decimal), [%s] (binary)\n", ...
+       syndrome_decimal, num2str(syndrome));
+
+% === Step 6: Create Syndrome Table Manually (like syndtable) ===
+trt = zeros(2^q, n);  % 8 rows (syndromes), 7 columns (bit positions)
+
+for i = 1:n
+    s = mod(H(:, i)', 2);  % Syndrome for error in bit i
+    s_dec = bi2de(s, 'left-msb') + 1;  % Index into table
+    trt(s_dec, i) = 1;
+end
+
+% === Step 7: Use Table to Correct Codeword ===
+corrvect = trt(syndrome_decimal + 1, :);
+correctedcode = mod(recd + corrvect, 2);
+
+printf("Correction Vector:\n");
+disp(corrvect);
+
+printf("Corrected Codeword:\n");
+disp(correctedcode);

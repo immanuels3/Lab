@@ -1,0 +1,46 @@
+clc;
+clear all;
+close all;
+
+A = 5;
+t = 0:0.001:1;
+
+f1 = input('Message frequency1 = ');
+f2 = input('Message frequency2 = ');
+f3 = input('Carrier sine wave frequency = ');
+
+% Message signal 1
+v = square(2 * pi * f1 * t);
+subplot(4,1,1);
+plot(t, v, 'LineWidth', 2);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Message Signal 1');
+grid on;
+
+% Message signal 2
+u = square(2 * pi * f2 * t);
+subplot(4,1,2);
+plot(t, u, 'LineWidth', 2);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Message Signal 2');
+grid on;
+
+% Carrier signal
+x = A * sin(2 * pi * f3 * t);
+subplot(4,1,3);
+plot(t, x, 'LineWidth', 2);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Carrier Signal (Sine)');
+grid on;
+
+% DPSK-like modulation (product of square and sine)
+z = x .* u;
+subplot(4,1,4);
+plot(t, z, 'LineWidth', 2);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('DPSK-like Modulated Signal');
+grid on;

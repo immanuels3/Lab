@@ -1,0 +1,64 @@
+clc;
+clear all;
+close all;
+
+% Binary Input Generation
+x = randi([0, 1], 1, 10);  % Generate random binary sequence of length 10
+
+% NRZ Pulse Shaping
+t = 0:0.01:length(x); % time vector
+i = 1; 
+y = zeros(1, length(t)); % initialize output signal
+for k = 1:length(t)
+    if t(k) <= i
+        y(k) = x(i);
+    else
+        i = i + 1;
+    end
+end
+
+% Plot Binary Input Sequence
+subplot(2, 2, 1);
+plot(t, y);
+axis([0 length(x) + 1 -1 2]);
+title('Binary Input Sequence');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+% QPSK Mapping (Gray coding)
+yy = [];
+for i = 1:2:length(x)
+    if x(i) == 0 && x(i + 1) == 0
+        y_map = (1/sqrt(2)) + 1j*(1/sqrt(2));  % 00 -> (1/sqrt(2)) + j*(1/sqrt(2))
+    elseif x(i) == 0 && x(i + 1) == 1
+        y_map = (1/sqrt(2)) - 1j*(1/sqrt(2));  % 01 -> (1/sqrt(2)) - j*(1/sqrt(2))
+    elseif x(i) == 1 && x(i + 1) == 0
+        y_map = - (1/sqrt(2)) + 1j*(1/sqrt(2)); % 10 -> -(1/sqrt(2)) + j*(1/sqrt(2))
+    else
+        y_map = - (1/sqrt(2)) - 1j*(1/sqrt(2)); % 11 -> -(1/sqrt(2)) - j*(1/sqrt(2))
+    end
+    yy = [yy y_map];
+end
+
+% In-phase and Quadrature Carrier Generation
+T = 2; % Bit duration
+c1 = sqrt(2/T) * cos(2*pi*1*t); % In-phase carrier
+c2 = sqrt(2/T) * sin(2*pi*1*t); % Quadrature carrier
+
+% Signal Generation
+op = zeros(1, length(t)); % Initialize output signal
+i = 1;
+for j = 1:length(t)
+    if t(j) <= i
+        op(j) = real(yy(i)) * c1(j) - imag(yy(i)) * c2(j);
+    else
+        i = i + 1;
+    end
+end
+
+% Plot QPSK Signal
+subplot(2, 2, 2);
+plot(t, op);
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('QPSK Signal');

@@ -1,0 +1,56 @@
+clc; % For clearing the command window
+close all; % For closing all the window except command window
+clear all; % For deleting all the variables from the memory
+
+% Taking input from the user for the frequencies and amplitude
+fc1 = input('Enter the freq of 1st Sine Wave carrier:');
+fc2 = input('Enter the freq of 2nd Sine Wave carrier:');
+fp = input('Enter the freq of Periodic Binary pulse (Message):');
+amp = input('Enter the amplitude (For Both Carrier & Binary Pulse Message):');
+
+amp = amp / 2; % Normalize amplitude
+t = 0:0.001:1; % Time vector
+
+% Generating the carrier sine waves
+c1 = amp .* sin(2 * pi * fc1 * t); % 1st Carrier Sine wave
+c2 = amp .* sin(2 * pi * fc2 * t); % 2nd Carrier Sine wave
+
+% Plotting the Carrier Waves
+subplot(4,1,1); % For Plotting The Carrier wave 1
+plot(t, c1);
+xlabel('Time');
+ylabel('Amplitude');
+title('Carrier 1 Wave');
+
+subplot(4,1,2); % For Plotting The Carrier wave 2
+plot(t, c2);
+xlabel('Time');
+ylabel('Amplitude');
+title('Carrier 2 Wave');
+
+% Generating Square wave message signal
+m = amp .* square(2 * pi * fp * t) + amp; % Square wave message signal
+
+% Plotting the Binary Message Pulses
+subplot(4,1,3); % For Plotting The Binary Message Pulses
+plot(t, m);
+xlabel('Time');
+ylabel('Amplitude');
+title('Binary Message Pulses');
+
+% Generating the modulated wave
+mm = zeros(size(t)); % Initialize the modulated wave vector
+for i = 1:length(t)  % Correct indexing for Octave
+    if m(i) == 0
+        mm(i) = c2(i); % Use the second carrier for message bit 0
+    else
+        mm(i) = c1(i); % Use the first carrier for message bit 1
+    end
+end
+
+% Plotting the Modulated Wave
+subplot(4,1,4); % For Plotting The Modulated wave
+plot(t, mm);
+xlabel('Time');
+ylabel('Amplitude');
+title('Modulated Wave');

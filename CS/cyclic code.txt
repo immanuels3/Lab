@@ -1,0 +1,70 @@
+clc;
+clear all;
+close all;
+
+% Parameters for Hamming(7,4)
+q = 3;
+n = 2^q - 1;
+k = n - q;
+
+% --- 1. Generate Generator and Parity Check Matrix ---
+% Equivalent of [H, G] = hammgen(3); in Octave
+pkg load communications  % Needed for some functions (if installed)
+
+% Note: Octave may not support hammgen() or syndtable() directly.
+% So we manually define Hamming(7,4) matrices:
+
+H = [ 1 0 1 0 1 0 1;
+      0 1 1 0 0 1 1;
+      0 0 0 1 1 1 1 ];   % parity-check matrix (3x7)
+
+G = [ 1 0 0 0 1 0 1;
+      0 1 0 0 1 1 0;
+      0 0 1 0 0 1 1;
+      0 0 0 1 1 1 1 ];   % generator matrix (4x7)
+
+disp('Generator matrix G =');
+disp(G);
+disp('Parity-check matrix H =');
+disp(H);
+
+% --- 2. Encode message using Cyclic Encoding ---
+msg = [1 0 0 1;
+       1 0 1 0;
+       1 0 1 1];
+
+codewords = mod(msg * G, 2);  % simple matrix multiplication encoding
+disp('Encoded codewords =');
+disp(codewords);
+
+% --- 3. Syndrome decoding example ---
+recd = [1 0 1 1 1 1 0];   % received vector (with potential error)
+
+% Compute Syndrome
+syndrome = mod(recd * H', 2);
+disp('Syndrome (binary) =');
+disp(syndrome);
+
+% Convert binary syndrome to decimal for table lookup
+syndrome_decimal = bi2de(syndrome, 'left-msb');
+printf('Syndrome = %d (decimal), [%s] (binary)\n', ...
+        syndrome_decimal, num2str(syndrome));
+
+% --- 4. Correction Vector Table (syndrome decoding manually) ---
+% Each nonzero syndrome corresponds to a single-bit error at a bit position.
+% Create a simple error pattern table (syndtable equivalent):
+trt = zeros(2^q, n);  % 8x7
+for i = 1:n
+    s = mod(H(:, i)', 2);  % syndrome for error in bit i
+    s_dec = bi2de(s, 'left-msb') + 1;
+    trt(s_dec, i) = 1;  % mark bit position
+end
+
+% Find correction vector
+corrvect = trt(syndrome_decimal + 1, :);
+correctedcode = mod(recd + corrvect, 2);
+
+disp('Correction vector =');
+disp(corrvect);
+disp('Corrected codeword =');
+disp(correctedcode);
